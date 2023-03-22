@@ -2,7 +2,7 @@ import React, {useState, useEffect} from 'react';
 import { Button, Card, Input, Space} from "antd";
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { getPost, deletePost, setEdit } from "../redux/features/postSlice";
+import { getPost, deletePost, setEdit, updatePost } from "../redux/features/postSlice";
 import LoadingCard from './LoadingCard';
 
 const Home = () => {
@@ -15,7 +15,7 @@ const Home = () => {
         if(body){
             setBodyText(body)
         }
-    },[body])
+    },[body]);
 
     const fetchUserPost = () => {
         if (!id){
@@ -60,22 +60,44 @@ const Home = () => {
                                 <>
                                     <Input.TextArea 
                                         rows={4}
-                                        value={}
+                                        value={bodyText}
+                                        onChange={(e) => setBodyText(e.target.value)}
                                     />
+                                    <Space size="middle" style={{ marginTop: 5, marginLeft: 5 }}>
+                                        <Button 
+                                            type="primary"
+                                            onClick={() => {
+                                                dispatch(updatePost({
+                                                    id: post[0].id,
+                                                    title: post[0].title,
+                                                    body: bodyText,
+                                                })
+                                            );
+                                                dispatch(setEdit({ edit: false, body: "" }))
+                                            }}
+                                        >Save</Button>
+                                        <Button onClick={() => dispatch(setEdit({ edit : false, body: "" }))}>Cancel</Button>
+                                    </Space>
                                 </>
                             ): (
                                 <span>{post[0].body}</span>
                             )}
                         </Card>
-                        <Space size="middle" style={{ marginTop: 35, marginLeft: 5, float: "right", marginRight: 35}}>
+                        {!edit && (
+                            <Space size="middle" style={{ marginTop: 35, marginLeft: 5, float: "right", marginRight: 35}}>
                             <Button 
                                 style={{ cursor: "pointer" }} 
                                 type="primary" 
                                 danger 
                                 onClick={() => dispatch(deletePost({ id : post[0].id }))
                                 }>Delete</Button>
-                            <Button style={{ cursor: "pointer" }} type="primary" onClick={()=> dispatch(setEdit({ edit: true, body: post[0].body }))}>Edit</Button>
+                            <Button 
+                                style={{ cursor: "pointer" }} 
+                                type="primary" 
+                                onClick={()=> dispatch(setEdit({ edit: true, body: post[0].body }))}
+                            >Edit</Button>
                         </Space>
+                        )}
                     </div>
                 
                 )}
